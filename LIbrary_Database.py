@@ -9,10 +9,10 @@ try:
 	curs.execute("""create table Student_Data(
 
 					name varchar,
-					roll_no integer,
+					roll_no integer UNIQUE,
 					Mob_no integer,
 					branch varchar,
-					username varchar,
+					username varchar UNIQUE,
 					password varchar,
 					book_borrowed varchar
 
@@ -20,9 +20,10 @@ try:
 
 	curs.execute("""create table Book_Data(
 
-					book_id varchar,		
+					book_id varchar NOT NULL UNIQUE,		
 					book_name varchar,
 					author_name varchar,
+					Subject varchar NOT NULL,
 					count integer
 
 
@@ -523,7 +524,7 @@ class Student():
 			
 
 			for i in range(len(l)):
-				query1 = "select book_id, book_name, author_name from Book_Data where book_id = '{}' ".format(l[i])
+				query1 = "select book_id, book_name, author_name, Subject from Book_Data where book_id = '{}' ".format(l[i])
 				c.execute( query1 )
 				www = c.fetchall()
 				if www:
@@ -533,12 +534,14 @@ class Student():
 			self.frame = Frame(self.Book_page)
 			self.frame.grid()
 
-			self.tv = ttk.Treeview(self.frame, column =("book_id","book_name","author_name"), height = len(l))
+			self.tv = ttk.Treeview(self.frame, column =("book_id","book_name","author_name", "Subject"), height = len(l))
 			
 
 			self.tv.heading("book_id", text = "Book ID")
 			self.tv.heading("book_name", text = "Book Name")
 			self.tv.heading("author_name", text = "Author Name")
+			self.tv.heading("Subject", text = "Subject")
+
 
 			self.tv.grid(column = 0, row = 2, padx=20)
 
@@ -565,11 +568,12 @@ class Student():
 		else:
 
 
-			self.tv2 = ttk.Treeview(self.frame, column = ("book_id", "book_name", "author_name", "count"), height = len(all_data))
+			self.tv2 = ttk.Treeview(self.frame, column = ("book_id", "book_name", "author_name", "Subject", "count"), height = len(all_data))
 
 			self.tv2.heading("book_id", text = "Book ID")
 			self.tv2.heading("book_name", text = "Book Name")
 			self.tv2.heading("author_name", text = "Author Name")
+			self.tv2.heading("Subject", text = "Subject")
 			self.tv2.heading("count", text = "Count")
 
 
@@ -579,7 +583,7 @@ class Student():
 				self.tv2.insert('', 'end', values = i)
 
 
-		b = Button(self.Book_page, text = "BACK", command = self.back_clicked3).grid(column = 8, row = 8)
+		b = Button(self.Book_page, text = "BACK", command = self.back_clicked3).grid(column = 0, row = 10)
 
 
 		self.Book_page.mainloop()
@@ -667,11 +671,12 @@ class admin_page():
 
 		else:
 
-			tv2 = ttk.Treeview(self.frame, column = ("book_id", "book_name", "author_name", "count"), height = len(all_data))
+			tv2 = ttk.Treeview(self.frame, column = ("book_id", "book_name", "author_name", "Subject", "count"), height = len(all_data))
 
 			tv2.heading("book_id", text = "Book ID")
 			tv2.heading("book_name", text = "Book Name")
 			tv2.heading("author_name", text = "Author Name")
+			tv2.heading("Subject", text = "Subject")
 			tv2.heading("count", text = "Count")
 
 
@@ -684,7 +689,7 @@ class admin_page():
 		conn.close()	
 
 
-		b = Button(self.book_details, text = "BACK", command = self.back_clicked3).grid(column = 8, row = 8)
+		b = Button(self.book_details, text = "BACK", command = self.back_clicked3).grid(column = 0, row = 8)
 
 		self.book_details.mainloop()
 
@@ -787,9 +792,13 @@ class Add_Book():
 		self.author_name = Entry(self.book_page, width = 20, borderwidth = 5 )
 		self.author_name.grid( column = 1, row = 2 )
 
-		txt4 = Label(self.book_page, text = "Count    ").grid( column = 0, row = 3 ) 
+		txt4 = Label(self.book_page, text = "Subject	").grid( column = 0, row = 3 )
+		self.Subject = Entry(self.book_page, width = 20, borderwidth = 5 )
+		self.Subject.grid( column = 1, row = 3)
+
+		txt5 = Label(self.book_page, text = "Count    ").grid( column = 0, row = 4 ) 
 		self.Count = Entry(self.book_page, width = 20, borderwidth = 5 )
-		self.Count.grid(column = 1, row = 3)
+		self.Count.grid(column = 1, row = 4)
 
 		b = Button(self.book_page, text = "ADD", command = self.add_clicked).grid(column = 4, row = 4)
 
@@ -812,25 +821,24 @@ class Add_Book():
 		for i in range(len(t)):
 			l.append(t[i][0])
 
+		try:	
+			if self.book_id.get() == "" or self.book_name.get()=="" or self.author_name.get()=="" or self.Count.get()=="":
+				
+				txt1 = Label(self.book_page, text = "field is empty !").grid(column = 7, row = 7)	
 
-		if self.book_id.get() in l:
+			else:	
+
+
+				query = "insert into Book_Data(book_id, book_name, author_name, Subject, count) values( '{}', '{}', '{}', '{}', {} );".format(self.book_id.get(), self.book_name.get(), self.author_name.get(), self.Subject.get(), self.Count.get() )
+				c.execute( query )
+
+				txt2 = Label(self.book_page, text = "Book added succesfully !").grid(column = 8, row = 8)
 			
-			txt = Label(self.book_page, text = "Book already exist in Library Database !").grid(column = 6, row = 6)
+			conn.commit()
+			conn.close()
 
-		elif self.book_id.get() == "" or self.book_name.get()=="" or self.author_name.get()=="" or self.Count.get()=="":
-			
-			txt1 = Label(self.book_page, text = "field is empty !").grid(column = 7, row = 7)	
-
-		else:	
-
-
-			query = "insert into Book_Data(book_id, book_name, author_name, count) values( '{}', '{}', '{}', {} );".format(self.book_id.get(), self.book_name.get(), self.author_name.get(), self.Count.get() )
-			c.execute( query )
-
-			txt2 = Label(self.book_page, text = "Book added succesfully !").grid(column = 8, row = 8)
-		
-		conn.commit()
-		conn.close()
+		except:
+			txt = Label(self.book_page, text = "Book already exist in Library Database !").grid(column = 6, row = 6)	
 
 	
 ## Back to admin page from book page
@@ -947,36 +955,50 @@ class RegisterForm():
 			conn.commit()
 			conn.close()
 
-		elif int(self.Roll_no.get()) in n:
-
-			txt2 = Label(self.Library_window, text = "You have already been registered !").grid(column = 0, row = 16)
-
-
-		elif self.Username.get() in k:
-
-			txt1 = Label(self.Library_window, text = "This usenamae has already been taken").grid( column = 0, row = 17 )
-
 		else:
-		
-			query = "insert into Student_Data( name, roll_no, Mob_no, branch, username, password ) values( '{}', {},{},'{}','{}','{}' );".format(self.Name.get(), self.Roll_no.get() , self.Mobile_no.get() , self.Branch.get(), self.Username.get(), self.Password.get() )
-			c.execute( query )
+			flag=0
+
+			try:
+				roll = self.Roll_no.get()
+				query = "insert into Student_Data( roll_no ) values( '{}' )".format(roll)
+				c.execute( query )
+				
+			except:	
+				txt2 = Label(self.Library_window, text = "This Roll no. has already registered !").grid(column = 0, row = 16)
+				flag=1
+
+			try:
+				query = "update Student_Data set username = '{}' where roll_no = {}".format(self.Username.get(), roll)
+				c.execute( query )
+
+			except:	
+				query = "delete from Student_Data where roll_no = {}".format(roll)
+				txt1 = Label(self.Library_window, text = "This usenamae has already been taken").grid( column = 0, row = 17 )
+				flag=1
+
+			if flag==0:
 			
-			conn.commit()
-			conn.close()
-			
-			self.Library_window.withdraw()
-			self.Library_window = Toplevel(self.Library_window)
-			self.Library_window.geometry("1350x750+0+0")
+				query = "update Student_Data set name = '{}', Mob_no = {}, branch = '{}', password = '{}' where roll_no = {};".format(self.Name.get(), self.Mobile_no.get() , self.Branch.get(), self.Password.get(), roll )
+				c.execute( query )
+				
+				conn.commit()
+				conn.close()
+				
+				self.Library_window.withdraw()
+				self.Library_window = Toplevel(self.Library_window)
+				self.Library_window.geometry("1350x750+0+0")
 
-			self.Mainframe = Frame(self.Library_window)
-			self.Mainframe.grid()
+				self.Mainframe = Frame(self.Library_window)
+				self.Mainframe.grid()
 
-			self.Titleframe = Frame(self.Mainframe, width = 1350, padx = 20, bd = 50, relief = RIDGE )
-			self.Titleframe.pack(side=TOP)
-			self.lbltitle = Label(self.Titleframe, width = 30, font = ( "arial", 52, "bold" ), text = "LIBRARY MANAGEMENT SYSTEM", padx = 20 )
-			self.lbltitle.grid()
+				self.Titleframe = Frame(self.Mainframe, width = 1350, padx = 20, bd = 50, relief = RIDGE )
+				self.Titleframe.pack(side=TOP)
+				self.lbltitle = Label(self.Titleframe, width = 30, font = ( "arial", 52, "bold" ), text = "LIBRARY MANAGEMENT SYSTEM", padx = 20 )
+				self.lbltitle.grid()
 
-			l =Buttons(self.Library_window)
+				l =Buttons(self.Library_window)
+
+
 
 
 if __name__=="__main__":
