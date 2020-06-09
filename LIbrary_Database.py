@@ -159,6 +159,7 @@ class Buttons():
 
 
 	def btt2_back(self):
+
 		self.Login_page.withdraw()
 		self.Library_window = Toplevel(self.Login_page)
 		self.Library_window.geometry("1350x750+0+0")
@@ -263,7 +264,22 @@ class Student():
 
 		b5 = Button(self.Student_Page, text = "Logout", font = ( "arial", 20, "bold" ), width = 20, command = self.logout_clicked).grid(column = 0, row = 5, pady = 10)
 
+		b6 = Button(self.Student_Page, text = "Profile", font = ("arial", 20, "bpld"), width = 20, command = self.student_profile).grid(column = 0, row = 6, pady = 10)
 
+
+
+
+#### Student_profile
+
+
+	def student_profile(self):
+
+		self.Student_Page.withdraw()
+		self.Student_profile = Toplevel(self.Student_Page)
+		self.Student_profile.geometry("1350x750+0+0")
+
+		self.Mainframe = Frame(self.Student_profile)
+		self.Mainframe.grid()
 
 
 
@@ -950,7 +966,7 @@ class RegisterForm():
 
 		if self.Name.get() == "" or self.Roll_no.get() == "" or self.Mobile_no.get() == "" or self.Branch.get() == "" or self.Username.get() == "" or self.Password.get() == "":
 
-			txt = Label(self.Library_window, text = "field is empty !").grid(column = 0, row = 15)
+			txt = Label(self.Library_window, text = "field is empty !").grid(column = 0, row = 19)
 
 			conn.commit()
 			conn.close()
@@ -960,43 +976,54 @@ class RegisterForm():
 
 			try:
 				roll = self.Roll_no.get()
-				query = "insert into Student_Data( roll_no ) values( '{}' )".format(roll)
+				query = "insert into Student_Data( roll_no ) values( {} )".format(roll)
 				c.execute( query )
-				
-			except:	
+			
+			except sq3.IntegrityError:	
 				txt2 = Label(self.Library_window, text = "This Roll no. has already registered !").grid(column = 0, row = 16)
 				flag=1
-
-			try:
-				query = "update Student_Data set username = '{}' where roll_no = {}".format(self.Username.get(), roll)
-				c.execute( query )
-
-			except:	
-				query = "delete from Student_Data where roll_no = {}".format(roll)
-				txt1 = Label(self.Library_window, text = "This usenamae has already been taken").grid( column = 0, row = 17 )
+		
+			except sq3.OperationalError:
+				txt = Label(self.Library_window, text = "Please enter valid Roll N0. !").grid(column = 0, row = 17)
 				flag=1
 
-			if flag==0:
-			
-				query = "update Student_Data set name = '{}', Mob_no = {}, branch = '{}', password = '{}' where roll_no = {};".format(self.Name.get(), self.Mobile_no.get() , self.Branch.get(), self.Password.get(), roll )
-				c.execute( query )
-				
-				conn.commit()
-				conn.close()
-				
-				self.Library_window.withdraw()
-				self.Library_window = Toplevel(self.Library_window)
-				self.Library_window.geometry("1350x750+0+0")
+			if flag==0:	
+				try:
+					query = "update Student_Data set username = '{}' where roll_no = {}".format(self.Username.get(), roll)
+					c.execute( query )
 
-				self.Mainframe = Frame(self.Library_window)
-				self.Mainframe.grid()
+				except sq3.IntegrityError:
+					txt1 = Label(self.Library_window, text = "This usenamae has already been taken").grid( column = 0, row = 17 )
+					flag=1	
 
-				self.Titleframe = Frame(self.Mainframe, width = 1350, padx = 20, bd = 50, relief = RIDGE )
-				self.Titleframe.pack(side=TOP)
-				self.lbltitle = Label(self.Titleframe, width = 30, font = ( "arial", 52, "bold" ), text = "LIBRARY MANAGEMENT SYSTEM", padx = 20 )
-				self.lbltitle.grid()
+				except  sq3.OperationalError:
+					txt = Label(self.Library_window, text = "Please Enter valid Username !").grid(column = 0, row = 18)
+					flag=1
 
-				l =Buttons(self.Library_window)
+				if flag==0:
+					try:
+						query = "update Student_Data set name = '{}', Mob_no = {}, branch = '{}', password = '{}' where roll_no = {};".format(self.Name.get(), self.Mobile_no.get() , self.Branch.get(), self.Password.get(), roll )
+						c.execute( query )
+						
+						conn.commit()
+						conn.close()
+						
+						self.Library_window.withdraw()
+						self.Library_window = Toplevel(self.Library_window)
+						self.Library_window.geometry("1350x750+0+0")
+
+						self.Mainframe = Frame(self.Library_window)
+						self.Mainframe.grid()
+
+						self.Titleframe = Frame(self.Mainframe, width = 1350, padx = 20, bd = 50, relief = RIDGE )
+						self.Titleframe.pack(side=TOP)
+						self.lbltitle = Label(self.Titleframe, width = 30, font = ( "arial", 52, "bold" ), text = "LIBRARY MANAGEMENT SYSTEM", padx = 20 )
+						self.lbltitle.grid()
+						l =Buttons(self.Library_window)
+					except:
+						txt = Label(self.Library_window, text = "Please enter a valid Phone number !").grid(column = 0, row = 18)	
+
+					
 
 
 
