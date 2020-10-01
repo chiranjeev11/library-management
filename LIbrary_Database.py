@@ -77,6 +77,7 @@ class Buttons():
 
 
 ## Admin Page
+## this page will include all the administration related options
 
 	def bt2_clicked(self):
 		
@@ -125,6 +126,7 @@ class Buttons():
 
 
 ## Student Login Page
+## this page will include all the student login related optins
 
 	def bt1_clicked(self):
 
@@ -175,6 +177,7 @@ class Buttons():
 		l =Buttons(self.Library_window)
 
 ## Student's Username And Password Check
+## page were the user name and password of the students are checked
 
 	def b_clicked(self):
 		
@@ -238,6 +241,7 @@ class Buttons():
 
 
 #   Student Page
+#   page having all information related to the student
 
 class Student():
 
